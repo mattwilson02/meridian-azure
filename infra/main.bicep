@@ -30,6 +30,13 @@ module foundation './modules/foundation/main.bicep' = {
   }
 }
 
+module storage './modules/storage/main.bicep' = {
+  name: 'storage'
+  params: {
+    location: location
+  }
+}
+
 // module compute    './modules/compute/main.bicep'    = { ... }
 // module containers './modules/containers/main.bicep' = { ... }
 // module appService './modules/app-service/main.bicep'= { ... }

@@ -37,6 +37,8 @@
 - **Users:** Finance department only (up to 11 concurrent users)
 - **Data:** Sensitive financial records
 - **Reasoning for Premium:** Team of 11 concurrent users requires consistent low-latency IOPS — HDD-backed Standard would cause performance issues
+- **Provisioned capacity at launch:** 600GB — 500GB current data plus 100GB headroom for migration variance and immediate post-migration growth
+- **Scaling strategy:** Scale in 100GB increments when the 90% capacity alert fires. Alert threshold set to 90% (not 80%) because 100GB increments provide sufficient headroom between alert and capacity limit. See operations.md for alert config.
 
 ## Product Images & Marketing Assets
 - **Azure Target:** Azure Blob Storage

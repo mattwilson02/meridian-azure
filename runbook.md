@@ -77,34 +77,75 @@ az ad group show --group "Head-of-Finance" --query id -o tsv
 
 ## 2. Foundation Module Deployment
 
-> **Design decisions to be documented here once foundation module is designed.**
+Deploys: resource groups, policies, role assignments, budgets.
+
+### 2.1 What-if (preview before deploying)
+```bash
+az deployment sub what-if \
+  --location uksouth \
+  --template-file infra/main.bicep \
+  --parameters infra/parameters/dev.local.bicepparam
+```
+
+### 2.2 Deploy
+```bash
+az deployment sub create \
+  --location uksouth \
+  --template-file infra/main.bicep \
+  --parameters infra/parameters/dev.local.bicepparam
+```
+
+### 2.3 Verify in portal
+- [ ] **Resource groups** — `rg-meridian-prod-uks` and `rg-meridian-nonprod-uks` visible
+- [ ] **Policy → Assignments** — 5 assignments visible (deny-nonuk-locations, audit-owner-tag, audit-costcentre-tag, modify-environment-tag x2)
+- [ ] **Entra ID → Groups** — role assignments visible on IT-Manager, Cloud-Engineers, Head-of-Finance groups
+- [ ] **Cost Management → Budgets** — 4 budgets visible (or verify via CLI: `az consumption budget list -o table`)
+
+> **Note:** PIM-eligible Contributor for Cloud Engineers requires Entra ID P2 licence. Set `enablePim = true` in `dev.local.bicepparam` once a P2 tenant is available.
 
 ---
 
-## 3. Compute Module Prerequisites
+## 3. Storage Module Deployment
+
+Deploys: Premium FileStorage account + Finance file share (prod), Standard GPv2 assets account + container (prod), Standard GPv2 general account + container (non-prod).
+
+No manual prerequisites — runs as part of the same deployment as foundation.
+
+### 3.1 What-if and Deploy
+Same commands as section 2 — storage module is wired into `infra/main.bicep` and deploys automatically.
+
+### 3.2 Verify in portal
+- [ ] **rg-meridian-prod-uks** → Storage accounts: `stmeridianfinanceuks` (FileStorage, Premium_LRS) and `stmeridianassetsuks` (StorageV2, Standard_GRS)
+- [ ] **rg-meridian-nonprod-uks** → Storage accounts: `stmeridiannonproduks` (StorageV2, Standard_LRS)
+- [ ] Finance share `finance` exists with 600GB quota under `stmeridianfinanceuks`
+- [ ] Container `assets` exists with no public access under both blob storage accounts
+
+---
+
+## 4. Compute Module Prerequisites
 
 > To be completed when compute module is designed.
 
 ---
 
-## 4. Containers Module Prerequisites
+## 5. Containers Module Prerequisites
 
 > To be completed when containers module is designed.
 
 ---
 
-## 5. App Service Module Prerequisites
+## 6. App Service Module Prerequisites
 
 > To be completed when app service module is designed.
 
 ---
 
-## 6. Networking Module Prerequisites
+## 7. Networking Module Prerequisites
 
 > To be completed when networking module is designed.
 
 ---
 
-## 7. Monitoring Module Prerequisites
+## 8. Monitoring Module Prerequisites
 
 > To be completed when monitoring module is designed.

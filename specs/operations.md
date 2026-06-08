@@ -12,7 +12,7 @@
 |---|---|---|
 | VM CPU utilisation | > 80% for 5 minutes | Cloud Engineers |
 | App Service 5xx errors | > 10 in 5 minutes | Cloud Engineers |
-| Storage account capacity | > 80% of provisioned | IT Manager |
+| Storage account capacity | > 90% of provisioned | IT Manager |
 | Policy non-compliance | Any new violation | IT Manager |
 | Failed backup job | Any failure | Cloud Engineers |
 | Entra ID sign-in risk | Medium or High risk detected | IT Manager |
