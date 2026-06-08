@@ -1,0 +1,20 @@
+# Local parameter overrides that may contain real subscription IDs or secrets
+infra/parameters/*.local.bicepparam
+
+# Environment files
+.env
+.env.*
+
+# Azure CLI
+.azure/
+
+# Bicep build output
+*.json
+!bicepconfig.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/

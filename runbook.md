@@ -12,7 +12,7 @@ These must be in place before anything else.
 - [ ] Azure CLI installed — `az --version`
 - [ ] Bicep CLI installed — `az bicep install`
 - [ ] Logged in to Azure — `az login`
-- [ ] Correct subscription selected — `az account set --subscription "<name>"`
+- [ ] Correct subscription selected — `az account set --subscription "Azure subscription 1"`
 
 ---
 
@@ -45,6 +45,33 @@ PIM is not used for B2B guest users — access is managed manually.
 - [ ] When a contractor contract ends, remove the guest user from the `External-Contractors` Entra group immediately
 - [ ] Delete the B2B guest user account from Entra ID
 - [ ] Verify no residual role assignments remain on the non-prod ACR and App Service resources
+
+### 1.5 Entra Group Creation
+
+Groups are created via CLI — the Microsoft Graph Bicep extension is not stable enough for production use.
+Create all groups before deploying the foundation module. Only 3 IDs are needed for the current deployment
+(`dev.bicepparam`); the remaining groups are used in later modules when storage resources are provisioned.
+
+```bash
+# Create groups
+az ad group create --display-name "IT-Manager" --mail-nickname "IT-Manager"
+az ad group create --display-name "Cloud-Engineers" --mail-nickname "Cloud-Engineers"
+az ad group create --display-name "Head-of-Finance" --mail-nickname "Head-of-Finance"
+az ad group create --display-name "Finance-Analysts" --mail-nickname "Finance-Analysts"
+az ad group create --display-name "Accounts-PayableReceivable" --mail-nickname "Accounts-PayableReceivable"
+az ad group create --display-name "Digital-Marketing-Managers" --mail-nickname "Digital-Marketing-Managers"
+az ad group create --display-name "Content-Creative" --mail-nickname "Content-Creative"
+az ad group create --display-name "External-Contractors" --mail-nickname "External-Contractors"
+```
+
+```bash
+# Retrieve object IDs needed for dev.bicepparam
+az ad group show --group "IT-Manager" --query id -o tsv
+az ad group show --group "Cloud-Engineers" --query id -o tsv
+az ad group show --group "Head-of-Finance" --query id -o tsv
+```
+
+- [ ] Paste the 3 object IDs into `infra/parameters/dev.bicepparam` replacing the placeholder values
 
 ---
 

@@ -5,18 +5,31 @@ targetScope = 'subscription'
 @description('Primary Azure region for all resources.')
 param location string = 'uksouth'
 
-@description('Secondary region used for redundancy where applicable.')
-param locationSecondary string = 'ukwest'
+@description('Budget start date — must be the first day of a month (yyyy-MM-dd).')
+param budgetStartDate string
 
-@description('Environment name — drives naming and policy.')
-@allowed(['dev', 'prod'])
-param environment string
+@description('Entra group object IDs — created via runbook before deployment. See runbook.md section 1.5.')
+param itManagerGroupId string
+param cloudEngineersGroupId string
+param headOfFinanceGroupId string
+
+@description('Set to true only on tenants with Entra ID P2 licence — required for PIM role eligibility.')
+param enablePim bool = false
 
 // ── Modules ───────────────────────────────────────────────────────────────────
-// Each module is added here as the corresponding exam domain is studied.
-// Uncomment and configure each block when ready.
 
-// module foundation './modules/foundation/main.bicep' = { ... }
+module foundation './modules/foundation/main.bicep' = {
+  name: 'foundation'
+  params: {
+    location: location
+    budgetStartDate: budgetStartDate
+    itManagerGroupId: itManagerGroupId
+    cloudEngineersGroupId: cloudEngineersGroupId
+    headOfFinanceGroupId: headOfFinanceGroupId
+    enablePim: enablePim
+  }
+}
+
 // module compute    './modules/compute/main.bicep'    = { ... }
 // module containers './modules/containers/main.bicep' = { ... }
 // module appService './modules/app-service/main.bicep'= { ... }

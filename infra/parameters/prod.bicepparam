@@ -1,5 +1,5 @@
 using '../main.bicep'
 
-param environment = 'prod'
 param location = 'uksouth'
-param locationSecondary = 'ukwest'
+param rootManagementGroupId = '<your-tenant-id>'
+param budgetStartDate = '2026-06-01'
