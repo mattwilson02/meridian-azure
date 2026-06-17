@@ -122,9 +122,43 @@ Same commands as section 2 — storage module is wired into `infra/main.bicep` a
 
 ---
 
-## 4. Compute Module Prerequisites
+## 4. Compute Module
 
-> To be completed when compute module is designed.
+Deploys: VNet + compute subnet, Windows Server VM (HR/Finance), Recovery Services Vault, daily backup policies for VM and finance file share.
+
+### 4.1 Prerequisites
+- Set `vmAdminPassword` in `infra/parameters/dev.local.bicepparam` (12+ chars, upper, lower, number, special character)
+
+### 4.2 Deploy
+```bash
+az deployment sub create \
+  --location uksouth \
+  --template-file infra/main.bicep \
+  --parameters infra/parameters/dev.local.bicepparam
+```
+
+> **Note:** `what-if` fails on this stack due to a known ARM planner issue with PIM preview API types — skip straight to deploy.
+
+### 4.3 Verify in portal
+- [ ] **rg-meridian-prod-uks** → Virtual networks: `vnet-meridian-prod-uks` with subnet `snet-compute-prod-uks`
+- [ ] **rg-meridian-prod-uks** → Virtual machines: `vm-hrfinance-prod-uks` (Standard_D2s_v3, Windows Server 2022)
+- [ ] **rg-meridian-prod-uks** → Recovery Services vaults: `rsv-meridian-prod-uks`
+- [ ] Vault → Backup items: VM `vm-hrfinance-prod-uks` and file share `finance` both listed
+
+### 4.4 Cost management — deallocate VM between study sessions
+A D2s_v3 running 24/7 costs ~£70/month. Deallocate it when not in use — no compute charge while deallocated, disk storage only (~£2/month).
+
+```bash
+# Deallocate (stop billing for compute)
+az vm deallocate \
+  --resource-group rg-meridian-prod-uks \
+  --name vm-hrfinance-prod-uks
+
+# Start again when needed
+az vm start \
+  --resource-group rg-meridian-prod-uks \
+  --name vm-hrfinance-prod-uks
+```
 
 ---
 

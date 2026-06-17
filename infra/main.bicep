@@ -16,6 +16,12 @@ param headOfFinanceGroupId string
 @description('Set to true only on tenants with Entra ID P2 licence — required for PIM role eligibility.')
 param enablePim bool = false
 
+// VM params commented out — compute module deployment blocked on Free Trial subscription (see modules/compute/main.bicep)
+// @description('Local admin username for the HR/Finance VM.')
+// param vmAdminUsername string
+// @secure()
+// param vmAdminPassword string
+
 // ── Modules ───────────────────────────────────────────────────────────────────
 
 module foundation './modules/foundation/main.bicep' = {
@@ -37,7 +43,11 @@ module storage './modules/storage/main.bicep' = {
   }
 }
 
-// module compute    './modules/compute/main.bicep'    = { ... }
+module compute './modules/compute/main.bicep' = {
+  name: 'compute'
+  params: {}
+}
+
 // module containers './modules/containers/main.bicep' = { ... }
 // module appService './modules/app-service/main.bicep'= { ... }
 // module networking './modules/networking/main.bicep' = { ... }

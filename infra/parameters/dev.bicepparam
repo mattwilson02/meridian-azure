@@ -8,3 +8,7 @@ param budgetStartDate = '2026-06-01'
 param itManagerGroupId = '<it-manager-group-object-id>'
 param cloudEngineersGroupId = '<cloud-engineers-group-object-id>'
 param headOfFinanceGroupId = '<head-of-finance-group-object-id>'
+
+// VM credentials — uncomment when compute module is re-enabled after subscription upgrade
+// param vmAdminUsername = '<vm-admin-username>'
+// param vmAdminPassword = '<vm-admin-password>'
