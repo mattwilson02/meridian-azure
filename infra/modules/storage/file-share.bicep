@@ -29,13 +29,13 @@ resource fileService 'Microsoft.Storage/storageAccounts/fileServices@2023-01-01'
   name: 'default'
 }
 
-// 600GB provisioned — 500GB current data plus 100GB migration headroom.
-// Scale in 100GB increments when 90% capacity alert fires. See workloads.md.
+// Reduced to 100GB minimum (study project — Premium bills on provisioned capacity regardless of usage).
+// Production sizing: 600GB (500GB data + 100GB migration headroom); scale in 100GB increments at 90% alert.
 resource financeShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-01-01' = {
   parent: fileService
   name: 'finance'
   properties: {
-    shareQuota: 600
+    shareQuota: 100
     enabledProtocols: 'SMB'
   }
 }
