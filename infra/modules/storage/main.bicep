@@ -33,3 +33,8 @@ module financeFileShare './file-share.bicep' = {
     location: location
   }
 }
+
+output prodBlobStorageId string = prodAssets.outputs.storageAccountId
+output prodBlobStorageName string = prodAssets.outputs.storageAccountName
+output fileStorageId string = financeFileShare.outputs.storageAccountId
+output fileStorageName string = financeFileShare.outputs.storageAccountName

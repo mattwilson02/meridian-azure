@@ -38,3 +38,6 @@ resource assetsContainer 'Microsoft.Storage/storageAccounts/blobServices/contain
     publicAccess: 'None'
   }
 }
+
+output storageAccountId string = storageAccount.id
+output storageAccountName string = storageAccount.name

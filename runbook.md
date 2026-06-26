@@ -162,21 +162,107 @@ az vm start \
 
 ---
 
-## 5. Containers Module Prerequisites
+## 5. Containers Module
 
-> To be completed when containers module is designed.
+Deploys: Azure Container Registry (Premium, shared), Container Apps Environments (prod + nonprod), Container Apps (product catalogue API prod + nonprod), AcrPull role assignments.
+
+### 5.1 Prerequisites — register resource providers
+```bash
+az provider register --namespace Microsoft.App --wait
+az provider register --namespace Microsoft.ContainerRegistry --wait
+```
+
+### 5.2 Deploy
+Same command as previous modules — containers module is wired into `infra/main.bicep`.
+```bash
+az deployment sub create \
+  --location uksouth \
+  --template-file infra/main.bicep \
+  --parameters infra/parameters/dev.local.bicepparam
+```
+
+### 5.3 Verify in portal
+- [ ] **rg-meridian-prod-uks** → Container registries: `acrmeridianretailuks` (Premium, admin disabled)
+- [ ] **rg-meridian-prod-uks** → Container Apps Environments: `cae-meridian-prod-uks`
+- [ ] **rg-meridian-nonprod-uks** → Container Apps Environments: `cae-meridian-nonprod-uks`
+- [ ] **rg-meridian-prod-uks** → Container Apps: `ca-catalogue-prod-uks` (system-assigned identity, min 1 replica)
+- [ ] **rg-meridian-nonprod-uks** → Container Apps: `ca-catalogue-nonprod-uks` (system-assigned identity, min 0 replicas)
+- [ ] ACR → Access control (IAM): both container app identities listed with AcrPull role
+
+### 5.4 Free Trial deployment note
+This module will fail to deploy on a Free Trial subscription due to compute capacity constraints:
+- Container App revision provisioning times out (`ContainerAppOperationError: Operation expired`)
+- Free Trial is limited to 1 Container Apps Environment per region
+
+The Bicep reflects the correct intended architecture. Deploy on PAYG to verify end-to-end.
+
+### 5.5 Cost note
+Container Apps consumption plan bills per vCPU-second and GiB-second of active usage only — no charge while scaled to zero.
 
 ---
 
-## 6. App Service Module Prerequisites
+## 6. App Service Module
 
-> To be completed when app service module is designed.
+Deploys: App Service Plans (S1 Standard prod, B1 Basic nonprod), Web Apps (storefront prod + nonprod), staging slot on prod.
+
+### 6.1 Prerequisites — register resource provider
+```bash
+az provider register --namespace Microsoft.Web --wait
+```
+
+### 6.2 Deploy
+Same command — app service module is wired into `infra/main.bicep` and depends on containers module outputs.
+```bash
+az deployment sub create \
+  --location uksouth \
+  --template-file infra/main.bicep \
+  --parameters infra/parameters/dev.local.bicepparam
+```
+
+### 6.3 Verify in portal
+- [ ] **rg-meridian-prod-uks** → App Service plans: `asp-meridian-prod-uks` (Standard S1)
+- [ ] **rg-meridian-nonprod-uks** → App Service plans: `asp-meridian-nonprod-uks` (Basic B1)
+- [ ] **rg-meridian-prod-uks** → App Services: `app-meridian-storefront-prod` with staging slot
+- [ ] **rg-meridian-nonprod-uks** → App Services: `app-meridian-storefront-nonprod`
+- [ ] Prod web app → Configuration → App settings: `CATALOGUE_API_URL` and `ASPNETCORE_ENVIRONMENT` marked as slot settings
+- [ ] Staging slot → Configuration: `CATALOGUE_API_URL` points to nonprod Container App FQDN
+
+### 6.4 Cost note
+S1 Standard plan costs ~£50/month. Delete or scale down between study sessions if needed:
+```bash
+az appservice plan update \
+  --name asp-meridian-prod-uks \
+  --resource-group rg-meridian-prod-uks \
+  --sku B1
+```
 
 ---
 
-## 7. Networking Module Prerequisites
+## 7. Networking Module
 
-> To be completed when networking module is designed.
+Deploys: Hub VNet, internal spoke VNet, ecommerce spoke VNet, VNet peering, UDRs, Bastion, Private DNS Zones, private endpoints (ACR, blob, file share).
+
+### 7.1 Deploy
+```bash
+az deployment sub create \
+  --location uksouth \
+  --template-file infra/main.bicep \
+  --parameters infra/parameters/dev.local.bicepparam
+```
+
+### 7.2 Verify in portal
+- [x] **rg-meridian-network-uks** → Virtual networks: `vnet-meridian-hub-uks`, `vnet-meridian-internal-uks`, `vnet-meridian-ecommerce-uks`
+- [x] **rg-meridian-network-uks** → Bastion: `bas-meridian-hub-uks`
+- [x] **rg-meridian-network-uks** → VNet peerings: hub↔internal, hub↔ecommerce
+- [x] **rg-meridian-network-uks** → Route tables: UDRs on all spoke subnets pointing to firewall private IP
+- [x] **rg-meridian-network-uks** → Private DNS zones: `privatelink.azurecr.io`, `privatelink.blob.core.windows.net`, `privatelink.file.core.windows.net`
+- [x] **rg-meridian-network-uks** → Private endpoints: ACR, blob storage, finance file share
+
+### 7.3 Free Trial constraints — what's deferred
+- **Azure Firewall** — ~£700/month, commented out in hub.bicep. UDRs are provisioned pointing to `10.0.0.4` (firewall private IP placeholder) but traffic won't be inspected until firewall is deployed.
+- **VPN Gateway** — ~£100/month, 30–45 min to provision, commented out in hub.bicep. Site-to-site tunnels to London/Manchester/Edinburgh offices deferred.
+- **App Gateway (WAF_v2)** — commented out in spoke-ecommerce.bicep. Public internet entry point deferred.
+- **useRemoteGateways on peering** — set to false until VPN Gateway is provisioned.
 
 ---
 

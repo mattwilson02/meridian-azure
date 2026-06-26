@@ -38,6 +38,7 @@ module foundation './modules/foundation/main.bicep' = {
 
 module storage './modules/storage/main.bicep' = {
   name: 'storage'
+  dependsOn: [foundation]
   params: {
     location: location
   }
@@ -45,10 +46,38 @@ module storage './modules/storage/main.bicep' = {
 
 module compute './modules/compute/main.bicep' = {
   name: 'compute'
+  dependsOn: [foundation]
   params: {}
 }
 
-// module containers './modules/containers/main.bicep' = { ... }
-// module appService './modules/app-service/main.bicep'= { ... }
-// module networking './modules/networking/main.bicep' = { ... }
+module containers './modules/containers/main.bicep' = {
+  name: 'containers'
+  dependsOn: [foundation]
+  params: {
+    location: location
+  }
+}
+
+// App Service Plans blocked on Free Trial — SubscriptionIsOverQuotaForSku (VM quota: 0)
+// Uncomment after upgrading to PAYG
+// module appService './modules/app-service/main.bicep' = {
+//   name: 'appService'
+//   params: {
+//     location: location
+//     prodCatalogueApiUrl: containers.outputs.prodCatalogueApiUrl
+//     nonprodCatalogueApiUrl: containers.outputs.nonprodCatalogueApiUrl
+//   }
+// }
+
+module networking './modules/networking/main.bicep' = {
+  name: 'networking'
+  dependsOn: [foundation]
+  params: {
+    location: location
+    acrId: containers.outputs.acrId
+    prodBlobStorageId: storage.outputs.prodBlobStorageId
+    fileStorageId: storage.outputs.fileStorageId
+  }
+}
+
 // module monitoring './modules/monitoring/main.bicep' = { ... }

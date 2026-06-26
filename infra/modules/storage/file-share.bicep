@@ -39,3 +39,6 @@ resource financeShare 'Microsoft.Storage/storageAccounts/fileServices/shares@202
     enabledProtocols: 'SMB'
   }
 }
+
+output storageAccountId string = storageAccount.id
+output storageAccountName string = storageAccount.name
