@@ -16,6 +16,11 @@ param headOfFinanceGroupId string
 @description('Set to true only on tenants with Entra ID P2 licence — required for PIM role eligibility.')
 param enablePim bool = false
 
+@description('Alert notification email addresses — store in local params file only, do not commit.')
+param securityAlertEmail string
+param engineeringAlertEmail string
+param cloudOpsAlertEmail string
+
 // VM params commented out — compute module deployment blocked on Free Trial subscription (see modules/compute/main.bicep)
 // @description('Local admin username for the HR/Finance VM.')
 // param vmAdminUsername string
@@ -80,4 +85,16 @@ module networking './modules/networking/main.bicep' = {
   }
 }
 
-// module monitoring './modules/monitoring/main.bicep' = { ... }
+module monitoring './modules/monitoring/main.bicep' = {
+  name: 'monitoring'
+  dependsOn: [foundation]
+  params: {
+    location: location
+    securityAlertEmail: securityAlertEmail
+    engineeringAlertEmail: engineeringAlertEmail
+    cloudOpsAlertEmail: cloudOpsAlertEmail
+    prodBlobStorageName: storage.outputs.prodBlobStorageName
+    fileStorageName: storage.outputs.fileStorageName
+    nonprodBlobStorageName: storage.outputs.nonprodBlobStorageName
+  }
+}

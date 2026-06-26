@@ -54,3 +54,4 @@ output prodCatalogueApiUrl string = 'https://${prodApp.outputs.fqdn}'
 output nonprodCatalogueApiUrl string = 'https://${nonprodApp.outputs.fqdn}'
 output acrId string = acr.outputs.acrId
 output acrName string = acr.outputs.acrName
+output sharedEnvName string = sharedEnv.outputs.environmentName
